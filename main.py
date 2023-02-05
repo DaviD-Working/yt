@@ -1,14 +1,31 @@
 from fastapi import FastAPI, Query
 import requests
+import uvicorn
+from fastapi import HTTPException
+from hiru import extract_links
+from hiru import get_video_url
 import json
 from fastapi.responses import HTMLResponse
 app = FastAPI()
 
+@app.get("/{hiru}")
+async def root():
+    return HTMLResponse(content="Please input a URL by adding it as a query parameter to the URL for Facebook video, like this: /?url=<your_input_url> <br><br> for youtube /yt/download?url=<url>", status_code=200)
 
+@app.get("/yt/download")
+async def download(url: str):
+    video_link, audio_link = extract_links(url)
+    if video_link is None or audio_link is None:
+        raise HTTPException(status_code=400, detail="Something went wrong. Please try again with a different URL.")
+    html_string= f"<p>Video Link: <a href='{video_link}'>{video_link}</a></p><p>Audio Link: <a href='{audio_link}'>{audio_link}</a></p>"
+    return HTMLResponse(content=html_string, status_code=200)        
+
+
+   
 @app.get("/")
 async def process_input(url: str = Query(None)):
     if not url:
-        return "Please input a URL by adding it as a query parameter to the URL, like this: /?url=<your_input_url>"
+        return "Please input a URL by adding it as a query parameter to the URL for Facebook video, like this: /?url=<your_input_url>                       for youtube /yt/download?url=<url>"
     fb_url = url
     headers = {
         'Host': 'api.savefrom.biz',
@@ -47,5 +64,14 @@ async def process_input(url: str = Query(None)):
             """
     except:
         return "Something went wrong. Please try again later."
-        
-    return HTMLResponse(content=html_string, status_code=200)        
+             
+    return HTMLResponse(content=html_string, status_code=200)    
+
+
+@app.get("/insta/download")
+def get_video_url_html(url: str):
+    video_url = get_video_url(url)
+    if video_url is None:
+        raise HTTPException(status_code=400, detail="Something went wrong. Please try again with a different URL.")    
+    html_string= f"<html><body>{video_url} <br><a href='{video_url}'>Video URL</a></body></html>"
+    return HTMLResponse(content=html_string, status_code=200)                
