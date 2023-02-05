@@ -4,18 +4,6 @@ import requests
 import json
 
 
-def extract_links(url):
-    try:
-        video_output = subprocess.check_output(['yt-dlp', '--get-url', '-f', 'best', url])
-        video_link = video_output.decode().strip()
-        audio_output = subprocess.check_output(['yt-dlp', '--get-url', '-f', 'bestaudio/best', '--extract-audio', '--audio-format', 'mp3', '--audio-quality', '192', url])
-        audio_link = audio_output.decode().strip()
-
-        return video_link, audio_link
-    except subprocess.CalledProcessError:
-        return None, None
-
-
 
 def get_video_url(url):
     headers = {
