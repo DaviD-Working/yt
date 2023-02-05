@@ -7,6 +7,10 @@ from hiru import get_video_url
 import json
 from fastapi.responses import HTMLResponse
 app = FastAPI()
+@app.get("/")
+async def root():
+    return HTMLResponse(content="Please input a URL by adding it as a query parameter to the URL for Facebook video, like this: /?url=<your_input_url> <br><br> for youtube /yt/download?url=<url>", status_code=200)
+
 
 @app.get("/{hiru}")
 async def root():
@@ -22,7 +26,7 @@ async def download(url: str):
 
 
    
-@app.get("/")
+@app.get("/fb/download")
 async def process_input(url: str = Query(None)):
     if not url:
         return "Please input a URL by adding it as a query parameter to the URL for Facebook video, like this: /?url=<your_input_url>                       for youtube /yt/download?url=<url>"
